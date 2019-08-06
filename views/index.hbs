@@ -1,0 +1,11 @@
+<h1>{{title}}</h1>
+<p>Welcome to {{title}}</p>
+<table class="table table-hover table-condensed table-bordered table-sm">
+  <thead class="thead-dark"><th class="w-30">First Name</th><th class="w-60">Last Name</th><th class="w-10"></th></thead>
+  {{#each people}}
+  <tr class="table-{{state}}" onclick="alert ('{{lastName}}')">
+    <td>{{firstName}}</td><td>{{lastName}}</td>
+    <td><button class="btn btn-outline-dark btn-sm" onclick="alert('OK'); false">Open</button></td>
+  </tr>
+  {{/each}}
+</table>

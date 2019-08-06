@@ -1,0 +1,86 @@
+<html>
+<head>
+<title>Creo.JS Tests</title>
+
+<script src="libs/jquery-3.3.1.min.js"></script>
+<script src="creo_js_tests.js"></script>
+<link rel="stylesheet" href="creo_js_tests.css">
+<style>
+    .attention {color: red;}
+</style>
+<script>
+
+function openInWindow (url, windId) {
+    windId = windId || "_testwindow";
+    const parameters = "width=" + (window.screen.width/2) + ",height=" + window.screen.height
+    window.open (url, windId, parameters);;
+}
+
+</script>
+
+</head>
+
+<body>
+    <h3>Creo.JS Tests</h3>
+    <table id="tests">
+        <thead><th>Test Link</th><th>Description</th></thead>
+        <tr>
+            <td class="minwidth"><a href="script_engine_testing.html">script_engine_testing</a></td>
+            <td>
+                Simple web tool for interactive testing of Creo.JS programs with simple JavaScript editor and output console.
+                The page supports loading and saving test scripts from user script library initially populated with sample scripts. It is very handy during Creo.JS learning and development process
+            </td>
+        </tr>
+        <tr>
+            <td class="minwidth"><a href="creojs_framework_tests.html">creojs_framework_tests</a></td>
+            <td>
+                Various Creo.JS framework tests. Some tests <span class="attention">require active assembly in session</span>
+            </td>
+        </tr>
+        <tr>
+            <td class="minwidth"><a href="init_term_creojs.html">init_term_creojs</a></td>
+            <td>
+                Illustrates Creo.JS page loading and unloading events
+            </td>
+        </tr>
+        <tr>
+            <td class="minwidth"><a href="active_model_name.html">active_model_name</a></td>
+            <td>
+                Simple page that displays active model file name. <span class="attention">Requires active model in session</span>
+            </td>
+        </tr>
+        <tr>
+            <td class="minwidth"><a href="ui_mouse_click_methods.html">ui_mouse_click_methods</a></td>
+            <td>
+                Compares mouse related APIs between pure Web.Link and Creo.JS
+            </td>
+        </tr>
+        <tr>
+            <td class="minwidth"><a href="compare_weblink_and_v8.html">compare_weblink_and_v8</a></td>
+            <td>
+                Compares performance of assembly traversal between pure Web.Link and Creo.JS. <span class="attention">Requires active assembly in session</span>
+            </td>
+        </tr>
+        <tr>
+            <td class="minwidth"><a href="explore_creo_icons.html">explore_creo_icons</a></td>
+            <td>
+                Lists image files from Creo install resource directory. Provides image files filter to find icons by name fragments
+            </td>
+        </tr>
+        <tr>
+            <td class="minwidth"><a href="load_demo_app.html">load_demo_app</a></td>
+            <td>
+                Loads demo application which sets model listeners and menu commands. See the page for further instructions
+            </td>
+        </tr>
+        <tr>
+            <td class="minwidth"><a href="promises_test.html">promises_test</a></td>
+            <td>
+                Tests <a href="https://javascript.info/promise-basics">promises</a> mechanism for calling a chain of Creo.JS functions. Promises allow chaining multiple asynchronous Creo.JS calls one after another.
+                The test collects the number of coordinate system features for all models in the session and displays it along with the number of the session models.
+                <span class="attention">Requires active part in session</span>. If the current model is an assembly Creo.JS code throws an exception stopping the chain execution
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

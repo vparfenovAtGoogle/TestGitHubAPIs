@@ -1,0 +1,369 @@
+<head>
+
+<!--
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
+-->
+
+<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Quicksand" />
+<link rel="stylesheet" type="text/css" href="libs/css/pretty-json.css" />
+
+<script type="text/javascript" src="libs/jquery-3.3.1.min.js" ></script>
+<script type="text/javascript" src="libs/underscore-min.js" ></script>
+<script type="text/javascript" src="libs/backbone-min.js" ></script>
+<script type="text/javascript" src="libs/pretty-json-min.js" ></script>
+
+<script type="text/javascript" src="earcut.min.js"></script>
+<script type="text/javascript" src="babylon.js"></script>
+<script type="text/javascript" src="babylonjs.loaders.min.js"></script>
+<script type="text/javascript" src="pep.js"></script>
+
+<link rel="stylesheet" href="creo.ui.min.css">
+    
+<script src="creojs.js"></script>
+<script src="browser.creojs" type="text/creojs"></script>
+
+<script>
+
+    var installIconDir = null;
+
+    function initInstallIconDir (dir) {
+        installIconDir = dir
+    }
+
+    function iconUrl (icon) {
+        return (installIconDir && icon) ? (installIconDir + icon) : icon
+    }
+
+    function clearOutput () {
+        ['json', 'messages', 'output', 'elapsedtime'].forEach (function (id) {document.getElementById(id).innerHTML = ''})
+    }
+
+    var FILENAME_FORMAT = /.*\.(.*)/
+
+    function modelIcon (filename) {
+        var match = FILENAME_FORMAT.exec(filename)
+        if (match) {
+            switch (match [1].toLowerCase ())
+            {
+                case 'prt': return 'part16x16.png'
+                case 'asm': return 'assembly16x16.png'
+            }
+        }
+        return null
+    }
+
+    function featureIcon (featureType) {
+        if (featureType) {
+            switch (featureType.toLowerCase ())
+            {
+                case 'datum_plane': return 'dsgnt_plane.png'
+                case 'datum_axis': return 'fix_axis16x16.png'
+                case 'first': return 'feat_extrude16x16.png'
+                case 'protrusion': return 'feat_extrude16x16.png'
+                case 'coord_sys': return 'new_csys_red16x16.png'
+                case 'group_head': return 'dtl_create_manage_draft_groups16x16.png'
+                case 'hole': return 'feat_hole16x16.png'
+                case 'cut': return 'feat_hole16x16.png'
+                case 'curve': return 'new_curve_red16x16.png'
+                case 'shell': return 'feat_shell16x16.png'
+                case 'chamfer': return 'feat_chamfer16x16.png'
+                case 'round': return 'feat_round16x16.png'
+                case 'component': return 'feat_component16.png'
+                case 'pattern_head': return 'feat_pattern16x16.png'
+            }
+        }
+        return null
+    }
+
+    function printMessage (title, text) {
+        var message = document.createElement("span");
+        message.innerHTML = '<b>' + title + ':</b> ' + text
+        document.getElementById('messages').appendChild (createListItem (message))
+    }
+
+    function printAlarmedElapsedTime (startTime) {
+        printElapsedTime (startTime, 'color:red')
+    }
+
+    function printElapsedTime (startTime, styles) {
+        var timep = document.getElementById('elapsedtime');
+        if (timep && startTime) {
+            var innerHTML = '<b>Elapsed time:</b> ' + (new Date ().getTime () - startTime.getTime ()) / 1000.0 + ' seconds'
+            if (styles) innerHTML = '<span style="' + styles + '">' + innerHTML + '</span>'
+          timep.innerHTML = innerHTML
+        }
+    }
+
+    function createListTextItem (text, icon) {
+        return createListItem (document.createTextNode(text), icon)
+    }
+
+    function createListItem (item, icon) {
+        var node = document.createElement("li");
+        if (icon) {
+            var inode = document.createElement("img");
+            inode.src = icon;
+            inode.style.paddingRight = '5px'
+            node.appendChild(inode);
+        }
+        node.appendChild(item);
+        return node
+    }
+
+    function listModels (models, startTime) {
+        clearOutput ()
+        var div = document.getElementById('output');
+        var list = document.createElement("ul");
+        models.forEach (function (model) {list.appendChild(createListTextItem (model, iconUrl (modelIcon (model))))})
+        div.appendChild(list);
+        printElapsedTime (startTime)
+        printMessage ('Model count', models.length)
+    }
+
+    function showStructure (bom, startTime) {
+        function formatNodes (model) {
+            var node = createListTextItem (model.filename, iconUrl(modelIcon (model.filename)));
+            if (model.components.length > 0) {
+                var list = document.createElement("ul");
+                model.components.forEach (function (c) {list.appendChild(formatNodes (c))})
+                node.appendChild(list)
+            }
+            if (model.features && model.features.length > 0) {
+                var list = document.createElement("ul");
+                model.features.forEach (function (f) {list.appendChild(createListTextItem(f.id + ": " + f.type, iconUrl (featureIcon (f.type))))})
+                node.appendChild(list)
+            }
+            return node
+        }
+        clearOutput ()
+        var div = document.getElementById('output');
+        var list = document.createElement("ul");
+        list.appendChild(formatNodes (bom.bom));
+        div.appendChild(list);
+        printElapsedTime (startTime)
+        printMessage ('Component count', bom.nodeCount)
+    }
+
+    function queryAssemblyStructure (count) {
+        while (count--) CreoJS.getAssemblyStructure ().subscribe(null)
+    }
+
+    function showExpandedObject (title, obj, startTime) {
+        var msg = {}
+        msg [title] = obj
+        printResponseObject (msg, startTime).expandAll ();
+    }
+
+    function showException (ex, startTime) {
+        showExpandedObject ('EXCEPTION', ex, startTime)
+    }
+ 
+    function showError (err, startTime) {
+        showExpandedObject ('ERROR', err, startTime)
+    }
+
+    function printResponseObject (obj, startTime) {
+        clearOutput ()
+        if (startTime) printElapsedTime (startTime)
+        return showJson (obj)
+    }
+
+    function alertObject (obj) {
+        alert (obj)
+    }
+
+    function showJson (obj) {
+        var span = document.getElementById('json');
+        return new PrettyJSON.view.Node({ 
+                el:span, 
+                data:obj
+            });
+    }
+
+    var printers = [
+        {
+            print: printResponseObject
+        },
+        {
+            print: printResponseObject
+        },
+        {
+            print: printResponseObject
+        },
+        {
+            print: printResponseObject
+        }
+    ]
+
+</script>
+
+<script type="text/creojs" id="browsercall.js" type="text/creojs">
+    function callBrowser (message) {
+        Browser.printers[2].print ({message, more: 'KPACOTA', mathematics: {pi:Math.PI, e:Math.E, numbers: [0,1,10,100,999]}})
+    }
+</script>
+
+<script type="text/creojs" id="exctest.js" type="text/creojs">
+    class SomeError extends Error {
+        constructor (data) {
+            super (data)
+        }
+    }
+    function a (isError) {
+        if (isError) {
+           throw new SomeError (JSON.stringify ({someerror: "Big problem"}))
+           //throw new SomeError ({someerror: "Big problem"})
+           //throw new Error ({someerror: "Big problem"})
+           //throw new Error (JSON.stringify (new SomeError ({someerror: "Big problem"})))
+        }
+        else {
+            throw {someerror: "Big problem"}
+            //throw "Big problem"
+        }
+    }
+    function b (isError) {
+        a(isError)
+    }
+    function c (isError) {
+        b (isError)
+    }
+    function d (isError) {
+        c (isError)
+    }
+    function testExceptions (isError) {
+        d(isError)
+    }
+</script>
+
+<script type="text/creojs" id="modellist.js" type="text/creojs">
+
+    function getParam (owner, name) {
+        try {
+            return owner.GetParam (name)
+        }
+        catch (ex) {
+            return null
+        }
+    }
+
+    function getAssemblyModels (modelFilter, componentFilter) {
+        let models = {}
+        getAssemblyStructure (false, componentFilter,
+            m => {
+                const fn = m.FileName
+                const data = models[fn]
+                if (data) {
+                    data.count++
+                    //return false
+                }
+                models[fn]={model: m, count: 1}
+                return true
+            })
+        return models
+    }
+
+    function getActiveAssemblyModels () {
+        return Object.keys (getAssemblyModels (f => true, f => f.Status == pfcFeatureStatus.FEAT_ACTIVE && !f.IsSubstitute))
+    }
+
+    function getActiveAssemblyModelsWithParam (name) {
+        var models = getAssemblyModels (f => true, f => f.Status == pfcFeatureStatus.FEAT_ACTIVE && !f.IsSubstitute)
+        Object.keys (models).forEach (filename => {
+            const model = models [filename].model
+            if (!getParam (model, name)) delete models [filename]
+        })
+        return Object.keys (models).map (fn => `[${models[fn].count}] ${fn}`)
+    }
+    
+</script>
+
+<script type="text/creojs" id="asmstruct.js" type="text/creojs">
+    function getAssemblyStructure (withFeatures, componentFilter = f => true, modelFilter = m => true) {
+        let session = pfcGetCurrentSession ();
+        let model = session.GetActiveModel ();
+    
+        function getFeatures (model) {
+            return model ? model.ListItems (pfcModelItemType.ITEM_FEATURE)
+                .filter (f => f)
+                .map (f => {
+                    let type = ''
+                    try {
+                        type = f.FeatType.string().substring (9)
+                    }
+                    catch (ex) {}
+                    return {id: f.Id, name: f.Name , type: type}
+                })
+                : [];
+		}
+
+        function getComponents (model, onlyVisible = false) {
+            return model.ListFeaturesByType (onlyVisible, pfcFeatureType.FEATTYPE_COMPONENT)
+        }
+    
+        function getComponentModels (model) {
+            return getComponents (model).map (f => session.GetModelFromDescr (f.ModelDescr))
+        }
+    
+        function getAssemblyStructure (model, withFeatures, componentFilter, modelFilter) {
+            const components = model ? getComponents (model)
+                .filter (componentFilter)
+                .map (f => Object.assign ({component: f, filename: f.ModelDescr.GetFileName ()}))
+                .map (c => Object.assign (c, {model: session.GetModelFromFileName (c.filename)}))
+                .filter (c => !c.model || (modelFilter && modelFilter (c.model)))
+                .map (c => Object.assign (c, {components: getAssemblyStructure (c.model, withFeatures, componentFilter, modelFilter)}))
+                : []
+            return withFeatures ? components.map (c => Object.assign (c, {features: getFeatures (c.model)})) : components
+        }
+    
+        let nodeCount = 0
+        function buildBOM (model, withFeatures) {
+            function buildStructure (modelname, components, features) {
+                nodeCount++
+                return {
+                    filename: modelname,
+                    features: features,
+                    components: components.map (c => buildStructure (c.filename, c.components, c.features))}
+            }
+            return buildStructure (model.FileName, getAssemblyStructure (model, withFeatures, componentFilter, modelFilter), withFeatures ? getFeatures (model) : undefined)
+        }
+        const bom = buildBOM (model, withFeatures)
+        return model ? {nodeCount, bom} : undefined
+    }
+        
+</script>
+
+<script type="text/creojs" src="remote.creojs" type="text/creojs"></script>
+
+<script type="text/creojs" id="asmstruct.js">
+    // Browser.initFeatureTypesMap (pfcFeatureType.values().reduce ((ftypes, ft) => {ftypes [ft.value ()] = ft.string (); return ftypes}, {}))
+    Browser.initInstallIconDir (pfcGetCurrentSession ().GetEnvironmentVariable ('PRO_DIRECTORY') + '/text/resource/')
+</script>
+
+
+</head>
+
+<body>
+    <div style="padding:10px">
+        <button class="btn btn-sm btn-info" onclick="CreoJS.getAssemblyStructure ().subscribe(printResponseObject)">Assembly Structure</button>
+        <button class="btn btn-sm btn-info" onclick="CreoJS.getAssemblyStructure (true).onError (showError).subscribe(showStructure)">Assembly and Features</button>
+        <span style="position:relative;float:right;">
+            <input type=checkbox id=creojsdebug>Debug
+            <button class="btn btn-sm btn-info" onclick="clearOutput()">Clear</button>
+            <button class="btn btn-sm btn-info" onclick="window.location.reload (true)">Reload</button>
+        </span>
+        <button class="btn btn-sm btn-info" onclick="CreoJS.getActiveAssemblyModels ().onError (showError).subscribe(listModels)">List Models</button>
+        <button class="btn btn-sm btn-info" onclick="CreoJS.getActiveAssemblyModelsWithParam ('IS_BARRIER_ISO').onError (showError).subscribe(listModels)">List Models with ISO param</button>
+        <button class="btn btn-sm btn-info" onclick="CreoJS.tryRemote ('IS_BARRIER_ISO').onError (showError).subscribe(printResponseObject)">Try Remote</button>
+        <button class="btn btn-sm btn-info" onclick="CreoJS.testExceptions (false).onError (showError).onException (showException).finally(printAlarmedElapsedTime)">Exception</button>
+        <button class="btn btn-sm btn-info" onclick="CreoJS.testExceptions (true).onError (showError).onException (showException).finally(printAlarmedElapsedTime)">Error</button>
+        <button class="btn btn-sm btn-info" onclick="CreoJS.callBrowser ('Calling Browser').onError (showError).subscribe()">Call Browser</button>
+        <!--button class="btn btn-sm btn-info" onclick="queryAssemblyStructure (55)">Query Assembly Structure 55 times</button-->
+    </div>
+    <div style="padding-left:10px; padding-right:10px; width:100%; height:90%; position:relative">
+        <p id="elapsedtime"><p>
+        <span id="json"></span>
+        <ul id="messages"></ul>
+        <div id="output" style="width:100%; height:100%; position:relative"></div>
+    </div>                    
+</body>

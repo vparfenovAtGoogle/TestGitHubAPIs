@@ -1,0 +1,318 @@
+<head>
+
+<!--
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
+-->
+
+<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Quicksand" />
+<link rel="stylesheet" type="text/css" href="libs/css/pretty-json.css" />
+
+<script type="text/javascript" src="libs/jquery-3.3.1.min.js" ></script>
+<script type="text/javascript" src="libs/underscore-min.js" ></script>
+<script type="text/javascript" src="libs/backbone-min.js" ></script>
+<script type="text/javascript" src="libs/pretty-json-min.js" ></script>
+
+
+<link rel="stylesheet" href="creo.ui.min.css">
+    
+<script src="creojs.js"></script>
+<script src="browser.creojs" type="text/creojs"></script>
+
+<script>
+
+    var installIconDir = null;
+
+    function initInstallIconDir (dir) {
+        installIconDir = dir
+    }
+
+    function iconUrl (icon) {
+        return (installIconDir && icon) ? (installIconDir + icon) : icon
+    }
+
+    function clearOutput () {
+        ['json', 'messages', 'output', 'properties', 'elapsedtime'].forEach (function (id) {document.getElementById(id).innerHTML = ''})
+    }
+
+    var FILENAME_FORMAT = /.*\.(.*)/
+
+    function modelIcon (filename) {
+        var match = FILENAME_FORMAT.exec(filename)
+        if (match) {
+            switch (match [1].toLowerCase ())
+            {
+                case 'prt': return 'part16x16.png'
+                case 'asm': return 'assembly16x16.png'
+            }
+        }
+        return null
+    }
+
+    function featureIcon (featureType) {
+        if (featureType) {
+            switch (featureType.toLowerCase ())
+            {
+                case 'datum_plane': return 'dsgnt_plane.png'
+                case 'datum_axis': return 'fix_axis16x16.png'
+                case 'first': return 'feat_extrude16x16.png'
+                case 'protrusion': return 'feat_extrude16x16.png'
+                case 'coord_sys': return 'new_csys_red16x16.png'
+                case 'group_head': return 'dtl_create_manage_draft_groups16x16.png'
+                case 'hole': return 'feat_hole16x16.png'
+                case 'cut': return 'feat_hole16x16.png'
+                case 'curve': return 'new_curve_red16x16.png'
+                case 'shell': return 'feat_shell16x16.png'
+                case 'chamfer': return 'feat_chamfer16x16.png'
+                case 'round': return 'feat_round16x16.png'
+                case 'component': return 'feat_component16.png'
+                case 'pattern_head': return 'feat_pattern16x16.png'
+                default: return 'feat_pattern16x16.png'
+            }
+        }
+        return null
+    }
+
+    function printMessage (title, text) {
+        var message = document.createElement("span");
+        message.innerHTML = '<b>' + title + ':</b> ' + text
+        document.getElementById('messages').appendChild (createListItem (message))
+    }
+
+    function printAlarmedElapsedTime (startTime) {
+        printElapsedTime (startTime, 'color:red')
+    }
+
+    function printElapsedTime (startTime, styles) {
+        var timep = document.getElementById('elapsedtime');
+        if (timep && startTime) {
+            var innerHTML = '<b>Elapsed time:</b> ' + (new Date ().getTime () - startTime.getTime ()) / 1000.0 + ' seconds'
+            if (styles) innerHTML = '<span style="' + styles + '">' + innerHTML + '</span>'
+          timep.innerHTML = innerHTML
+        }
+    }
+
+    function createListTextItem (text, icon) {
+        return createListItem (document.createTextNode(text), icon)
+    }
+
+    function createListItem (item, icon) {
+        var node = document.createElement("li");
+        if (icon) {
+            var inode = document.createElement("img");
+            inode.src = icon;
+            inode.style.paddingRight = '5px'
+            node.appendChild(inode);
+        }
+        node.appendChild(item);
+        return node
+    }
+
+    function listModels (models, startTime) {
+        clearOutput ()
+        var div = document.getElementById('output');
+        var list = document.createElement("ul");
+        models.forEach (function (model) {list.appendChild(createListTextItem (model, iconUrl (modelIcon (model))))})
+        div.appendChild(list);
+        printElapsedTime (startTime)
+        printMessage ('Model count', models.length)
+    }
+
+    function showStructure (bom, startTime) {
+        function formatNodes (model) {
+            var node = createListTextItem (model.filename, iconUrl(modelIcon (model.filename)));
+            if (model.components.length > 0) {
+                var list = document.createElement("ul");
+                model.components.forEach (function (c) {list.appendChild(formatNodes (c))})
+                node.appendChild(list)
+            }
+            if (model.features && model.features.length > 0) {
+                var list = document.createElement("ul");
+                model.features.forEach (function (f) {list.appendChild(createListTextItem(f.id + ": " + f.type, iconUrl (featureIcon (f.type))))})
+                node.appendChild(list)
+            }
+            return node
+        }
+        clearOutput ()
+        var div = document.getElementById('output');
+        var list = document.createElement("ul");
+        list.appendChild(formatNodes (bom.bom));
+        div.appendChild(list);
+        printElapsedTime (startTime)
+        //printMessage ('Component count', bom.nodeCount)
+    }
+
+    function showProperties (modelProps) {
+        var div = document.getElementById('properties');
+        var table = document.createElement("table");
+        for (name in modelProps) {
+            var row = document.createElement("tr");
+            row.innerHTML = '<td><b>' + name + ':</b></td><td>' + modelProps [name] + '</td>'
+            table.appendChild(row)
+        }
+        div.appendChild(table);
+    }
+
+    function showExpandedObject (title, obj, startTime) {
+        var msg = {}
+        msg [title] = obj
+        printResponseObject (msg, startTime).expandAll ();
+    }
+
+    function showException (ex, startTime) {
+        showExpandedObject ('EXCEPTION', ex, startTime)
+    }
+ 
+    function showError (err, startTime) {
+        showExpandedObject ('ERROR', err, startTime)
+    }
+
+    function printResponseObject (obj, startTime) {
+        clearOutput ()
+        if (startTime) printElapsedTime (startTime)
+        return showJson (obj)
+    }
+
+    function alertObject (obj) {
+        alert (obj)
+    }
+
+    function showJson (obj) {
+        var span = document.getElementById('json');
+        return new PrettyJSON.view.Node({ 
+                el:span, 
+                data:obj
+            });
+    }
+
+</script>
+
+<script type="text/creojs" id="modellist.js" type="text/creojs">
+
+    function getParam (owner, name) {
+        try {
+            return owner.GetParam (name)
+        }
+        catch (ex) {
+            return null
+        }
+    }
+
+    function getAssemblyModels (modelFilter, componentFilter) {
+        let models = {}
+        getAssemblyStructure (false, componentFilter,
+            m => {
+                const fn = m.FileName
+                const data = models[fn]
+                if (data) {
+                    data.count++
+                    //return false
+                }
+                models[fn]={model: m, count: 1}
+                return true
+            })
+        return models
+    }
+
+    function getActiveAssemblyModels () {
+        return Object.keys (getAssemblyModels (f => true, f => f.Status == pfcFeatureStatus.FEAT_ACTIVE && !f.IsSubstitute))
+    }
+
+    function getActiveAssemblyModelsWithParam (name) {
+        var models = getAssemblyModels (f => true, f => f.Status == pfcFeatureStatus.FEAT_ACTIVE && !f.IsSubstitute)
+        Object.keys (models).forEach (filename => {
+            const model = models [filename].model
+            if (!getParam (model, name)) delete models [filename]
+        })
+        return Object.keys (models).map (fn => `[${models[fn].count}] ${fn}`)
+    }
+    
+</script>
+
+<script type="text/creojs" id="modelprops.js" type="text/creojs">
+
+    function getModelProperties () {
+        const session = pfcGetCurrentSession ()
+        const model = session.GetActiveModel ()
+        if (model) {
+            const massProps = model.GetMassProperty ()
+            const properties = {volume: massProps.Volume, area: massProps.SurfaceArea, mass: massProps.Mass, density: massProps.Density}
+            return properties
+        }
+        return undefined
+    }
+
+</script>
+
+<script type="text/creojs" id="asmstruct.js" type="text/creojs">
+
+    function getAssemblyStructure (withFeatures, componentFilter = f => true, modelFilter = m => true) {
+        let session = pfcGetCurrentSession ()
+        let model = session.GetActiveModel ()
+    
+        function getFeatures (model) {
+            return model ? model.ListItems (pfcModelItemType.ITEM_FEATURE)
+                .filter (f => f && f.FeatType)
+                .map (f => {return {id: f.Id, name: f.Name , type: f.FeatType.string().substring (9)}})
+                : [];
+		}
+
+        function getComponents (model, onlyVisible = false) {
+            return model.ListFeaturesByType (onlyVisible, pfcFeatureType.FEATTYPE_COMPONENT)
+        }
+    
+        function getComponentModels (model) {
+            return getComponents (model).map (f => session.GetModelFromDescr (f.ModelDescr))
+        }
+    
+        function getAssemblyStructure (model, withFeatures, componentFilter, modelFilter) {
+            const components = model ? getComponents (model)
+                .filter (componentFilter)
+                .map (f => Object.assign ({component: f, filename: f.ModelDescr.GetFileName ()}))
+                .map (c => Object.assign (c, {model: session.GetModelFromFileName (c.filename)}))
+                .filter (c => !c.model || (modelFilter && modelFilter (c.model)))
+                .map (c => Object.assign (c, {components: getAssemblyStructure (c.model, withFeatures, componentFilter, modelFilter)}))
+                : []
+            return withFeatures ? components.map (c => Object.assign (c, {features: getFeatures (c.model)})) : components
+        }
+    
+        let nodeCount = 0
+        function buildBOM (model, withFeatures) {
+            function buildStructure (modelname, components, features) {
+                nodeCount++
+                return {
+                    filename: modelname,
+                    features: features,
+                    components: components.map (c => buildStructure (c.filename, c.components, c.features))}
+            }
+            return buildStructure (model.FileName, getAssemblyStructure (model, withFeatures, componentFilter, modelFilter), withFeatures ? getFeatures (model) : undefined)
+        }
+        if (model) {
+            const bom = buildBOM (model, withFeatures)
+            return {nodeCount, bom}
+        }
+        return undefined
+    }
+        
+</script>
+
+<script type="text/creojs" id="asmstruct.js">
+    Browser.initInstallIconDir (pfcGetCurrentSession ().GetEnvironmentVariable ('PRO_DIRECTORY') + '/text/resource/')
+</script>
+
+<script>
+    CreoJS.$ADD_ON_LOAD (function () {CreoJS.getAssemblyStructure (true).onError (showError).subscribe(showStructure)})
+    CreoJS.$ADD_ON_LOAD (function () {CreoJS.getModelProperties ().onError (showError).subscribe(showProperties)})
+</script>
+
+</head>
+
+<body>
+     <div style="padding-left:10px; padding-right:10px; width:100%; height:90%; position:relative">
+        <p id="elapsedtime"><p>
+        <span id="json"></span>
+        <ul id="messages"></ul>
+        <div id="properties" style="width:100%; position:relative"></div>
+        <div id="output" style="width:100%; height:100%; position:relative"></div>
+    </div>                    
+</body>

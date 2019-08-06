@@ -1,0 +1,49 @@
+<html>
+    <head>
+        <title>Explore Creo Icons</title>
+        <link rel="stylesheet" href="creo.ui.min.css">
+        <script src="creojs.js"></script>
+        <script type="text/creojs" src="browser.creojs"></script>
+        <style>
+            body {font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;}
+        </style>
+        <script>
+            function localURL (path) {
+                return 'file:///' + path
+            }
+            function init (installDirectory) {
+                RESDIR.innerHTML = installDirectory
+                RESDIR.href = localURL (installDirectory)
+            }
+            function selectIcon (src) {
+                SELECTED_IMAGE.src = src.src
+            }
+            function listIcons (files) {
+                OUTPUT.innerHTML = '<table>\n' +
+                    files.map (function (i) {return '<tr><td><img onclick="selectIcon (this)" src="' + localURL (i) + '"></td><td>' + i + '</tr>'}).join ('\n') +
+                    '</table>'
+            }
+        </script>
+        <script type="text/creojs">
+            const session = pfcGetCurrentSession ()
+            const base = session.GetEnvironmentVariable ('PRO_DIRECTORY') + '/text/resource/'
+            function listIcons (pattern = '*16x16*.png') {
+                const images = session.ListFiles (pattern, pfcFileListOpt.FILE_LIST_LATEST, base)
+                Browser.listIcons (images)
+            }
+            Browser.init (base)
+        </script>
+    </head>
+    <body>
+        <h3 style="font-weight:normal">Explore icons in Creo installation</h3>Resource directory: <a id=RESDIR></a>
+        <table>
+            <tr>
+                <td>File Name Filter: <input id="FILTER" type="text" value="*16x16*.png"></td>
+                <td><button class="btn btn-sm btn-success" onclick="CreoJS.listIcons(FILTER.value)">List Icons</button><br></td>
+                <td>Selected icon: </td>
+                <td><img id="SELECTED_IMAGE" width="16" height="16" alt="no-image" src="empty.png"></td>
+            </tr>
+        </table>  
+        <div id="OUTPUT"></div>      
+    </body>
+</html>
