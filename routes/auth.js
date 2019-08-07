@@ -20,19 +20,19 @@ router.get('/debug', (req, res) => {
       claims.push ({type: 'Error', value: err})
     }
   }
-  headers = Object.keys (headers).map (key => {
-    return {key, value: headers [key]}
-  })
   const x_ms_client_principal = headers ['x-ms-client-principal']
   if (x_ms_client_principal) {
     collectClaims (x_ms_client_principal)
   }
+  headers = Object.keys (headers).map (key => {
+    return {key, value: headers [key]}
+  })
   res.render('debug',
     {
       title: 'Test Node.JS with AAD Authentication environment',
       headers,
       claims
-    });
+    })
 })
 router.get('/logout', (req, res) => {
   // handle with passport
