@@ -3,10 +3,12 @@ var router = express.Router();
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
+  let headers = req.headers
+  headers = Object.keys (headers).map (key => {return {key, value: headers [key]}})
   res.render('index',
     {
       title: 'XPEH',
-      user: JSON.stringify (req.user),
+      headers: headers,
       people: [
         {lastName: 'Parfenova', firstName: 'Olga', state: 'warning'},
         {lastName: 'Parfenova', firstName: 'Maria', state: 'info'},

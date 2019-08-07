@@ -1,12 +1,21 @@
 <h1>{{title}}</h1>
 <p>Welcome to {{title}}</p>
-<p>User: {{user}}</p>
+<!-- p>User: {{user}}</p-->
 <table class="table table-hover table-condensed table-bordered table-sm">
   <thead class="thead-dark"><th class="w-30">First Name</th><th class="w-60">Last Name</th><th class="w-10"></th></thead>
   {{#each people}}
   <tr class="table-{{state}}" onclick="alert ('{{lastName}}')">
     <td>{{firstName}}</td><td>{{lastName}}</td>
     <td><button class="btn btn-outline-dark btn-sm" onclick="alert('OK'); false">Open</button></td>
+  </tr>
+  {{/each}}
+</table>
+
+<table class="table table-hover table-condensed table-bordered table-sm">
+  <thead class="thead-dark"><th class="w-20">Header</th><th class="w-80">Value</th></thead>
+  {{#each headers}}
+  <tr>
+    <td>{{key}}</td><td>{{value}}</td>
   </tr>
   {{/each}}
 </table>
