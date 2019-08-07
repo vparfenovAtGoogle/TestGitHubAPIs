@@ -8,7 +8,6 @@ router.get('/debug', (req, res) => {
   let headers = req.headers
   const claims = []
   function collectClaims (token) {
-    claims.push ({type: 'TOKEN', value: token})
     try {
       const decoded = JSON.parse (Buffer.from(token, 'base64').toString('binary'))
       if (decoded.claims) {
@@ -21,6 +20,7 @@ router.get('/debug', (req, res) => {
     }
   }
   const x_ms_client_principal = headers ['x-ms-client-principal']
+  claims.push ({type: 'x_ms_client_principal', value: x_ms_client_principal})
   if (x_ms_client_principal) {
     collectClaims (x_ms_client_principal)
   }
