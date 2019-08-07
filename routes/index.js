@@ -6,6 +6,7 @@ router.get('/', function(req, res, next) {
   res.render('index',
     {
       title: 'XPEH',
+      user: JSON.stringify (req.user),
       people: [
         {lastName: 'Parfenova', firstName: 'Olga', state: 'warning'},
         {lastName: 'Parfenova', firstName: 'Maria', state: 'info'},
