@@ -7,12 +7,12 @@ router.get('/', function(req, res, next) {
   let headers = req.headers
   const x_ms_client_principal = headers ['x-ms-client-principal']
   headers = Object.keys (headers).map (key => {return {key, value: headers [key]}})
-  const claims = []
+  const claims = [{type: 'MAPA3M', value: 'KPACOTA'}]
   if (x_ms_client_principal) {
     try {
       const decoded = jwt.decode(x_ms_client_principal, {complete: true})
       if (decoded) {
-        claims.push ({typ: 'Decoded', val: JSON.stringify (decoded)})
+        claims.push ({type: 'Decoded', value: JSON.stringify (decoded)})
         if (decoded.header) {
           decoded.header.claims.map (claim => {claims.push ({typ: claim.typ, val: claim.val}) })
         }
@@ -20,11 +20,11 @@ router.get('/', function(req, res, next) {
     }
     catch (err) {
       // ignore
-      claims.push ({typ: 'Error', val: err})
+      claims.push ({type: 'Error', value: err})
     }
   }
   else {
-    claims.push ({typ: 'x_ms_client_principal', val: x_ms_client_principal})
+    claims.push ({type: 'x_ms_client_principal', value: x_ms_client_principal})
   }
   res.render('index',
     {
