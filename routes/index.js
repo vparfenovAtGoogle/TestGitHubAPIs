@@ -9,7 +9,7 @@ router.get('/', function(req, res, next) {
   const x_ms_client_principal = headers ['x-ms-client-principal']
   headers = Object.keys (headers).map (key => {
     claims.push ({type: key, value: headers [key]})
-    if (key == 'x-ms-client-principal') claims.push ({type: key.toUpperCase (), value: headers [key]})
+    if (key == 'x-ms-client-principal') claims.push ({type: 'FOUND CLAIMS', value: 'CANNOT GET THEM'})
     return {key, value: headers [key]}
   })
   if (x_ms_client_principal) {
@@ -18,7 +18,7 @@ router.get('/', function(req, res, next) {
       if (decoded) {
         claims.push ({type: 'Decoded', value: JSON.stringify (decoded)})
         if (decoded.header) {
-          decoded.header.claims.map (claim => {claims.push ({typ: claim.typ, val: claim.val}) })
+          decoded.header.claims.map (claim => {claims.push ({type: claim.typ, value: claim.val}) })
         }
       }
     }
