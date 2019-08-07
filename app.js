@@ -7,7 +7,7 @@ const logger = require('morgan');
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
 const fileRouter = require('./routes/filestore');
-const authRouter = require ('.routes/auth')
+const authRouter = require ('./routes/auth')
 //const colaborationRouter = require('./routes/collaboration');
 
 const app = express();
