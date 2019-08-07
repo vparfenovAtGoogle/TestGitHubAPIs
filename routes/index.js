@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken')
 /* GET home page. */
 router.get('/', function(req, res, next) {
   let headers = req.headers
-  const x_ms_client_principal = header ['x-ms-client-principal']
+  const x_ms_client_principal = headers ['x-ms-client-principal']
   headers = Object.keys (headers).map (key => {return {key, value: headers [key]}})
   const claims = []
   if (x_ms_client_principal) {
