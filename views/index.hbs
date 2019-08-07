@@ -1,6 +1,7 @@
 <h1>{{title}}</h1>
 <p>Welcome to {{title}}</p>
 <!-- p>User: {{user}}</p-->
+<h3>People</h3>
 <table class="table table-hover table-condensed table-bordered table-sm">
   <thead class="thead-dark"><th class="w-30">First Name</th><th class="w-60">Last Name</th><th class="w-10"></th></thead>
   {{#each people}}
@@ -10,12 +11,21 @@
   </tr>
   {{/each}}
 </table>
-
+<h3>HTTP Headers</h3>
 <table class="table table-hover table-condensed table-bordered table-sm">
   <thead class="thead-dark"><th class="w-20">Header</th><th class="w-80">Value</th></thead>
   {{#each headers}}
   <tr>
     <td>{{key}}</td><td>{{value}}</td>
+  </tr>
+  {{/each}}
+</table>
+<h3>JWT Claims</h3>
+<table class="table table-hover table-condensed table-bordered table-sm">
+  <thead class="thead-dark"><th class="w-20">typ</th><th class="w-80">val</th></thead>
+  {{#each claims}}
+  <tr>
+    <td>{{typ}}</td><td>{{val}}</td>
   </tr>
   {{/each}}
 </table>
