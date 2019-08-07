@@ -28,7 +28,7 @@ router.get('/', function(req, res, next) {
   }
   res.render('index',
     {
-      title: 'XPEH',
+      title: 'Test Node.JS with AAD Authentication',
       headers,
       claims,
       people: [
