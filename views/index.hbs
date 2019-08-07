@@ -1,6 +1,6 @@
 <h2>{{title}}</h2>
 <!-- p>User: {{user}}</p-->
-<h3>People</h3>
+<h3>People ({{people.length}})</h3>
 <table class="table table-hover table-condensed table-bordered table-sm">
   <thead class="thead-dark"><th class="w-30">First Name</th><th class="w-60">Last Name</th><th class="w-10"></th></thead>
   {{#each people}}
@@ -10,7 +10,7 @@
   </tr>
   {{/each}}
 </table>
-<h3>HTTP Headers</h3>
+<h3>HTTP Headers ({{headers.length}})</h3>
 <table class="table table-hover table-condensed table-bordered table-sm">
   <thead class="thead-dark"><th class="w-20">Header</th><th class="w-80">Value</th></thead>
   {{#each headers}}
