@@ -23,6 +23,9 @@ router.get('/', function(req, res, next) {
       claims.push ({typ: 'Error', val: err})
     }
   }
+  else {
+    claims.push ({typ: 'x_ms_client_principal', val: x_ms_client_principal})
+  }
   res.render('index',
     {
       title: 'XPEH',
