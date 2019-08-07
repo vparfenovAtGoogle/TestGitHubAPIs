@@ -5,9 +5,12 @@ const jwt = require('jsonwebtoken')
 /* GET home page. */
 router.get('/', function(req, res, next) {
   let headers = req.headers
-  const x_ms_client_principal = headers ['x-ms-client-principal']
-  headers = Object.keys (headers).map (key => {return {key, value: headers [key]}})
   const claims = [{type: 'MAPA3M', value: 'KPACOTA'}]
+  const x_ms_client_principal = headers ['x-ms-client-principal']
+  headers = Object.keys (headers).map (key => {
+    claims.push ({type: key, value: headers [key]})
+    return {key, value: headers [key]}
+  })
   if (x_ms_client_principal) {
     try {
       const decoded = jwt.decode(x_ms_client_principal, {complete: true})
