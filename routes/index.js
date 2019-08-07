@@ -8,8 +8,10 @@ router.get('/', function(req, res, next) {
   const claims = [{type: 'MAPA3M', value: 'KPACOTA'}]
   const x_ms_client_principal = headers ['x-ms-client-principal']
   headers = Object.keys (headers).map (key => {
-    claims.push ({type: key, value: headers [key]})
-    if (key == 'x-ms-client-principal') claims.push ({type: 'FOUND CLAIMS', value: 'CANNOT GET THEM'})
+    //claims.push ({type: key, value: headers [key]})
+    if (key == 'x-ms-client-principal') {
+      claims.push ({type: key.toUpperCase (), value: headers [key]})
+    }
     return {key, value: headers [key]}
   })
   if (x_ms_client_principal) {
