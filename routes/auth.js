@@ -8,6 +8,7 @@ router.get('/debug', (req, res) => {
   let headers = req.headers
   const claims = []
   function collectClaims (token) {
+    claims.push ({type: 'TOKEN', value: token})
     try {
       const decoded = JSON.parse (Buffer.from(token, 'base64').toString('binary'))
       if (decoded.claims) {
