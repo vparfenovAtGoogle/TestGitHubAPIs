@@ -11,12 +11,16 @@ router.get('/', function(req, res, next) {
   if (x_ms_client_principal) {
     try {
       const decoded = jwt.decode(x_ms_client_principal, {complete: true})
-      if (decoded && decoded.header) {
-        decoded.header.claims.map (claim => {claims.push ({typ: claim.typ, val: claim.val}) })
+      if (decoded) {
+        claims.push ({typ: 'Decoded', val: JSON.stringify (decoded)})
+        if (decoded.header) {
+          decoded.header.claims.map (claim => {claims.push ({typ: claim.typ, val: claim.val}) })
+        }
       }
     }
     catch (err) {
       // ignore
+      claims.push ({typ: 'Error', val: err})
     }
   }
   res.render('index',
