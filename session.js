@@ -1,3 +1,4 @@
+const os = require ('os')
 const uuidv1 = require ('uuid/v1')
 const queryProcessor = require ('./queryprocessor')
 
@@ -107,6 +108,20 @@ class SessionDB {
   }
   getEnv () {
     return process.env
+  }
+  getOS () {
+    return {
+      hostname: os.hostname(),
+      type: os.type(),
+      platform: os.platform(),
+      arch: os.arch(),
+      uptime: os.uptime(),
+      loadavg: os.loadavg(),
+      totalmem: os.totalmem(),
+      freemem: os.freemem(),
+      cpus: os.cpus(),
+      networkInterfaces: os.networkInterfaces()
+    }
   }
   toJSON () {
     return {
