@@ -64,6 +64,7 @@ class SessionDB {
     this.sharedSessions = []
     this.clientSessions = []
     this.users = []
+    this.messages = []
     this.idCount = 0
     this.uuid = uuidv1 ()
     this.processor = queryProcessor (this)
@@ -88,6 +89,10 @@ class SessionDB {
   }
   closeSharedSession (id) {
     return true // TODO
+  }
+  saveMessage (msg) {
+    this.messages.push (msg)
+    return msg // TODO
   }
   listSharedSessions () {
     return this.sharedSessions

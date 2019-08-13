@@ -93,7 +93,12 @@ class QueryObject {
   }
   toJSON () {
     const obj = this [QUERY_OBJECT]
-    return Object.assign ({}, this, (obj && ('toJSON' in obj)) ? obj.toJSON () : obj)
+    if (obj) {
+      if (!Array.isArray (obj)) {
+        return Object.assign ({}, this, ('toJSON' in obj) ? obj.toJSON () : obj)
+      }
+    }
+    return obj
   }
 }
 
