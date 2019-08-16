@@ -1,6 +1,6 @@
-<h2>{{title}}</h2>
+<h3>{{title}}</h3>
 <!-- p>User: {{user}}</p-->
-<h3>HTTP Headers ({{headers.length}})</h3>
+<h5>HTTP Headers ({{headers.length}})</h5>
 <table class="table table-hover table-condensed table-bordered table-sm">
   <thead class="thead-dark"><th class="w-20">Header</th><th class="w-80">Value</th></thead>
   {{#each headers}}
@@ -9,7 +9,7 @@
   </tr>
   {{/each}}
 </table>
-<h3>JWT Claims ({{claims.length}})</h3>
+<h5>JWT Claims ({{claims.length}})</h5>
 <table class="table table-hover table-condensed table-bordered table-sm">
   <thead class="thead-dark"><th class="w-20">typ</th><th class="w-80">val</th></thead>
   {{#each claims}}
