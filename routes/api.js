@@ -24,6 +24,10 @@ module.exports = function (applicationObj) {
       res.json(result)
     }
   }
+  router.use('/', function(req, res, next) { 
+    res.setHeader('Last-Modified', (new Date()).toUTCString());
+    next(); 
+  })
   router.get('/', handler)
   router.post('/', handler)
   return router
