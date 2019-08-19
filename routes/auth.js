@@ -2,7 +2,13 @@ const express = require('express')
 
 const router = express.Router()
 router.get('/login', (req, res) => {  
-  res.render('login', { layout: 'loginlayout', title: "Login with one of the following Identity providers" })
+  res.render('login', {
+    layout: 'loginlayout',
+    title: "Login with one of the following Identity Providers",
+    idps: [
+      {type: 'aad', name: 'Azure AD'}
+    ]
+  })
 })
 router.get('/debug', (req, res) => {  
   let headers = req.headers

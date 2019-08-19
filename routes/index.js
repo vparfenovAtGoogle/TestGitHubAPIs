@@ -19,7 +19,17 @@ const renderHomePage = function(req, res, next) {
 }
 
 const renderLoginPage = function(req, res, next) {
-  res.render('login', { layout: 'loginlayout', title: "Login with one of the following Identity Providers" })
+  res.render('login', {
+    layout: 'loginlayout',
+    title: "Login with one of the following Identity Providers",
+    idps: [
+      {type: 'aad', name: 'Azure AD'},
+      {type: 'microsoftaccount', name: 'Microsoft Account'},
+      {type: 'facebook', name: 'Facebook', todo: true},
+      {type: 'google', name: 'Google'},
+      {type: 'twitter', name: 'Twitter', todo: true}
+    ]
+  })
 }
 
 router.get('/', renderLoginPage)
