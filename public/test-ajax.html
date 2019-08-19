@@ -1,6 +1,6 @@
 <html>
     <head>
-       <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Quicksand" />
+        <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Quicksand" />
         <link rel="stylesheet" type="text/css" href="creojsweb/libs/css/pretty-json.css" />
         
         <script type="text/javascript" src="creojsweb/libs/jquery-3.3.1.min.js" ></script>
@@ -24,7 +24,7 @@
                     },
                     dataType: "json",
                     cache: false
-                    })
+                })
             }
             function callServer (func, arg0) {
                 callService.apply (null, [func].concat (Array.prototype.slice.call(arguments, 1))).done(function( data ) {
@@ -45,8 +45,9 @@
                 var query = [document.getElementById ("query").value]
                 CreoJS.executeQuery (query)
             }
+            var showJsonElement = 'output'
             function showJson (obj) {
-                var span = document.getElementById('output');
+                var span = document.getElementById(showJsonElement);
                 return new PrettyJSON.view.Node({ 
                         el:span, 
                         data:obj
@@ -157,19 +158,16 @@
         <h3>Test Remote call</h3>
         Function name: <input id="query_func" type="text" value="getEnv">
         Args: <input id="query_args" type="text" value="">
-        <button id="ajax_btn" onclick="testCallServer ()">Call Ajax directy</button>
-        <button onclick="CreoJS.callServer ()">Call Ajax through Creo.JS!</button>
+        <button id="ajax_btn" onclick="testCallServer ()">Call Server directy</button>
+        <!--
+            <button onclick="CreoJS.callServer ()">Call Ajax through Creo.JS!</button>
+        -->
         <h3>Test Query</h3>
         Query: <input style="width:500px" id="query" type="text"  value="clientSessions" onFocus="selectScriptLine()" onKeyUp="scriptLineKeyEvent(event)">
         <button id="query_btn" onclick="testQuery ()">Execute</button>
         <!--
            <button onclick="alert (document.location.origin)">Check page!</button>
         -->
-        <h3>Test POST</h3>
-        <form action="query?func=getE" method="POST">
-            <input style="width:500px" type="file" value="C:\Users\vparfenov\projects\gtm_proj\P-70-03-Frustum\testrun\open_html.txt">
-            <input type="submit">
-        </form>
         <span id="output"></span>
         <script>
             //setButtonForEnter ("query", "query_btn")
