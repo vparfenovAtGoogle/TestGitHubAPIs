@@ -9,12 +9,19 @@ const people = [
 ]
 
 /* GET home page. */
-router.get('/', function(req, res, next) {
+
+const renderHomePage = function(req, res, next) {
   res.render('index',
     {
       title: 'Test Node.JS with AAD Authentication',
       people
     })
-})
+}
+
+const renderLoginPage = function(req, res, next) {
+  res.render('login', { layout: 'loginlayout', title: "Login with one of the following Identity Providers" })
+}
+
+router.get('/', renderLoginPage)
 
 module.exports = router;
