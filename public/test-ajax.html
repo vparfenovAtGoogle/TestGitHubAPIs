@@ -53,6 +53,9 @@
                         data:obj
                     });
             }
+            function clearOutput () {
+                document.getElementById(showJsonElement).innerHTML = ''
+            }
 
             var lineStack = [];
             var lineCurrent = -1;
@@ -168,7 +171,10 @@
         <!--
            <button onclick="alert (document.location.origin)">Check page!</button>
         -->
-        <span id="output"></span>
+        <div>
+            <button id="query_btn" onclick="clearOutput ()">Clear</button>
+            <span id="output"></span>
+        </div>
         <script>
             //setButtonForEnter ("query", "query_btn")
             setButtonForEnter ("query_func", "ajax_btn")
