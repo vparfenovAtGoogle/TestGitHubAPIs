@@ -53,4 +53,6 @@ router.get('/google', (req, res) => {
   res.send('logging in with Google')
 })
 
+console.log (`${__dirname}: ${__filename}`)
+
 module.exports = router
